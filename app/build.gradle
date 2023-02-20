@@ -7,6 +7,10 @@ android {
     namespace 'com.example.a7minuteworkout'
     compileSdk 33
 
+     buildFeatures {
+         viewBinding true
+     }
+
     defaultConfig {
         applicationId "com.example.a7minuteworkout"
         minSdk 23
