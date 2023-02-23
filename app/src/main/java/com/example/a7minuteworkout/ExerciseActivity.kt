@@ -3,11 +3,16 @@ package com.example.a7minuteworkout
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.speech.tts.TextToSpeech
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import com.example.a7minuteworkout.databinding.ActivityExcerciseBinding
+import org.w3c.dom.Text
+import java.util.*
+import kotlin.collections.ArrayList
 
-class ExerciseActivity : AppCompatActivity() {
+class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private var binding : ActivityExcerciseBinding? = null
 
     private var restTimer : CountDownTimer? = null
@@ -18,6 +23,8 @@ class ExerciseActivity : AppCompatActivity() {
 
     private var exerciseList : ArrayList<ExerciseModel>? = null
     private var currentExercisePosition = -1
+
+    private var tts: TextToSpeech? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,8 +42,9 @@ class ExerciseActivity : AppCompatActivity() {
         }
 
         exerciseList = Constants.defaultExerciseList()
-
         setUpRestView()
+
+        tts = TextToSpeech(this,this)
     }
 
     private fun setUpRestView(){
@@ -81,6 +89,8 @@ class ExerciseActivity : AppCompatActivity() {
             exerciseTimer?.cancel()
             exerciseProgress = 0
         }
+
+        speakOut(exerciseList!![currentExercisePosition].name)
         binding?.ivImage?.setImageResource(exerciseList!![currentExercisePosition].image)
         binding?.tvExerciseName?.text = exerciseList!![currentExercisePosition].name
 
@@ -116,6 +126,35 @@ class ExerciseActivity : AppCompatActivity() {
             exerciseTimer?.cancel()
             exerciseProgress = 0
         }
+
+        if(tts != null){
+            tts?.stop()
+            tts?.shutdown()
+        }
         binding = null
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.d("Pause" , "Pause")
+        if(tts != null){
+            tts?.stop()
+            tts?.shutdown()
+        }
+    }
+
+    override fun onInit(status: Int) {
+        if (status == TextToSpeech.SUCCESS) {
+            var result = tts!!.setLanguage(Locale.getDefault())
+            if (result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                Toast.makeText(this, "Language Not Supported",Toast.LENGTH_SHORT).show()
+            }
+        }else{
+            Toast.makeText(this, "TTS Failed",Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun speakOut(text:String){
+        tts!!.speak(text,TextToSpeech.QUEUE_FLUSH, null,null)
     }
 }

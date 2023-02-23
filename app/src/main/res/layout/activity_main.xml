@@ -20,7 +20,7 @@
         android:id="@+id/flStart"
         android:layout_width="150dp"
         android:background="@drawable/item_color_accent_border_ripple_background"
-        android:layout_height="50dp">
+        android:layout_height="150dp">
 
         <TextView
             android:layout_width="wrap_content"
