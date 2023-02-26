@@ -26,6 +26,8 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private var tts: TextToSpeech? = null
 
+    private var exerciseAdapter : ExerciseStatusAdapter? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityExcerciseBinding.inflate(layoutInflater)
@@ -43,8 +45,14 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         exerciseList = Constants.defaultExerciseList()
         setUpRestView()
+        setUpExerciseStatusRecyclerView()
 
         tts = TextToSpeech(this,this)
+    }
+
+    private fun setUpExerciseStatusRecyclerView(){
+        exerciseAdapter = ExerciseStatusAdapter(exerciseList!!)
+        binding?.rvExerciseStatus?.adapter = exerciseAdapter
     }
 
     private fun setUpRestView(){
@@ -72,6 +80,8 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
             override fun onFinish() {
                 currentExercisePosition++
+                exerciseList!![currentExercisePosition].isSelected=true
+                exerciseAdapter!!.notifyDataSetChanged()
                 setUpExerciseView()
                 Toast.makeText(this@ExerciseActivity,"Exercise Starts Now",Toast.LENGTH_SHORT).show()
             }
@@ -107,6 +117,9 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             }
 
             override fun onFinish() {
+                exerciseList!![currentExercisePosition].isSelected=false
+                exerciseList!![currentExercisePosition].isCompleted=true
+                exerciseAdapter!!.notifyDataSetChanged()
                 if (currentExercisePosition<exerciseList?.size!! -1 ){
                     setUpRestView()
                 }else{
@@ -134,14 +147,14 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         binding = null
     }
 
-    override fun onPause() {
-        super.onPause()
-        Log.d("Pause" , "Pause")
-        if(tts != null){
-            tts?.stop()
-            tts?.shutdown()
-        }
-    }
+//    override fun onPause() {
+//        super.onPause()
+//        Log.d("Pause" , "Pause")
+//        if(tts != null){
+//            tts?.stop()
+//            tts?.shutdown()
+//        }
+//    }
 
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
